@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Recognition and Translation</title>
+    <style>
+        body {
+            font-family: cursive;
+            background-color: #684747;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .navbar {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        .navbar a:hover {
+            background-color: #555;
+        }
+        .container {
+            max-width: 800px;
+            margin: 80px auto 40px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </div>
+
+    <div class="container">
+        <h1>Speech Recognition and Translation </h1>
+        <button id="startButton">Start Recognition</button>
+        <br>
+        <div id="output"></div>
+        <br>
+        <div>
+            <label for="languages">Translate to: </label>
+            <select id="languages">
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="zh">Chinese</option>
+                <option value="id">Indonese</option>
+                <option value="it">Italian</option>
+            </select>
+        </div>
+        <div id="translation"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Speech Recognition and Translation</p>
+    </footer>
+
+    <script>
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
+        const translationDiv = document.getElementById('translation');
+
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        const startButton = document.getElementById('startButton');
+        const outputDiv = document.getElementById('output');
+        const languagesSelect = document.getElementById('languages');
+
+        startButton.addEventListener('click', () => {
+            startButton.disabled = true;
+            outputDiv.textContent = 'Listening...';
+
+            recognition.start();
+        });
+
+        recognition.onresult = async (event) => {
+            const transcript = event.results[0][0].transcript;
+            outputDiv.textContent = 'You said: ' + transcript;
+            console.log('Confidence: ' + event.results[0][0].confidence);
+
+            try {
+                const targetLanguage = languagesSelect.value;
+                const translation = await translateText(transcript, targetLanguage);
+                translationDiv.textContent = 'Translated: ' + translation;
+            } catch (error) {
+                console.error('Translation error:', error);
+            }
+        };
+
+        recognition.onerror = (event) => {
+            outputDiv.textContent = 'Error occurred in recognition: ' + event.error;
+        };
+
+        recognition.onend = () => {
+            startButton.disabled = false;
+            outputDiv.textContent += '\nRecognition ended.';
+        };
+
+        async function translateText(text, targetLanguage) {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${text}&langpair=en|${targetLanguage}`);
+            const data = await response.json();
+            return data.responseData.translatedText;
+        }
+    </script>
+</body>
+</html>
