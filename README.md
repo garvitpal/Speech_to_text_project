@@ -1,2 +1,2 @@
-# Raido_15-08-23
-Create Your Dream Travel Website from Scratch! Join us in this step-by-step tutorial as we guide you through building a stunning and interactive landing page using HTML, CSS, and Javascript.
+MUlTILINGUAL SPEECH TO TEXT TRANSLATOR
+This project aims to translate the speech to text (and read aloud) in various languages allowing the tourists to communicate with the local natives. The user can input the audio and can convert it into various language text translation and read aloud that translated text.
